@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1 OAuth2js Login
+  - if (typeof(message) !== 'undefined')
+    p= message
+  form(action="", method="POST")
+    p
+      label(for="email") Email: 
+      input(name="email", value="")
+    p
+      label(for="password") Password: 
+      input(name="password", type="password")
+    p
+      input(type="submit")

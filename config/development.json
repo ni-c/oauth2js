@@ -1,0 +1,13 @@
+{
+  "ports": ["8001", "8002", "8003"],
+  "secret": "ENxzbCnT0Prtb8Wddu6YmRWTlbOYKvxWEOVkkQsDzafyQFv5",
+  "mongo": {
+    "host"  : "127.0.0.1",
+    "name"  : "development",
+    "port"  : "27017",
+    "user"  : {}
+  },
+  "oauth": {
+    "token_expire_time": "3600"
+  }
+}
