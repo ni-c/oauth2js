@@ -4,27 +4,7 @@
  * @file routes/user.js
  * @brief User routes
  * @author Willi Thiel (ni-c@ni-c.de)
- *
- * <pre>
- * Client table structure:
- * {
- *   "_id" : ObjectId("01234567890ab"),
- *   "redirect_uri" : "http://client.example.com",
- *   "name" : "Example Client",
- *   "secret" : "jdadDsaf7SAdZfha7sd"
- * }
- *
- * User table structure:
- * {
- *   "_id" : ObjectId("01234567890ab"),
- *   "email" : "mail@example.com",
- *   "password" : "c2d3f68aacb4e5fc87191caba9d42d148cd60181cdd2c999c6aac4fa28cefb0b",
- *   "scope" : [
- *     "application1",
- *     "application2"
- *   ]
- * }
- * </pre>
+ * 
  */
 if( typeof define !== 'function') {
 	var define = require('amdefine')(module);
@@ -92,6 +72,12 @@ define(['crypto', 'mongodb'], function(crypto, mongodb) {
 				} else {
 					// login successful
 					req.session.user = r[0];
+					if (req.query.response_type == 'token') {
+    				var search = req._parsedUrl.search;
+						return res.redirect('/authorize' + search)
+					} else {
+						return res.redirect('/');
+					}
 				}
 			});
 		});

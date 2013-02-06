@@ -80,7 +80,6 @@ requirejs([ 'http', 'connect', 'path', 'express', 'node-conf', 'mongodb', './rou
     app.post('/login', user.performlogin);
     app.get('/logout', user.logout);
 
-
 		// 404 Not found
     app.all('*', function(req, res) { res.send(404, "<html><body><pre>I'm sorry Dave, i'm afraid i can't do that.</pre></body></html>") });
     

@@ -19,10 +19,6 @@
  *   "_id" : ObjectId("01234567890ab"),
  *   "email" : "mail@example.com",
  *   "password" : "c2d3f68aacb4e5fc87191caba9d42d148cd60181cdd2c999c6aac4fa28cefb0b",
- *   "scope" : [
- *     "application1",
- *     "application2"
- *   ] 
  * }
  * </pre>
  */
@@ -84,14 +80,17 @@ define([ 'crypto', 'mongodb' ], function(crypto, mongodb) {
 
     // Missing param => Invalid request
     if ((!grant_type) || (!code) || (!redirect_uri) || (!client_id)) {
-      sendError(res, 400, 'invalid_request', 'The request is missing a required parameter.');
-      return;
+      return sendError(res, 400, 'invalid_request', 'The request is missing a required parameter.');
+    }
+    
+    // Check for valid client_id
+    if ((client_id.length != 12) && (client_id.length != 24)) {
+      return sendError(res, 400, 'invalid_request', 'client_id must be a single String of 12 bytes or a string of 24 hex characters.');
     }
 
     // Grant type not supported
     if (grant_type != 'authorization_code') {
-      sendError(res, 400, 'unsupported_grant_type', 'The authorization grant type is not supported by the authorization server.');
-      return;
+      return sendError(res, 400, 'unsupported_grant_type', 'The authorization grant type is not supported by the authorization server.');
     }
 
     req.app.get('db').collection('Client', function(err, c) {
@@ -101,20 +100,17 @@ define([ 'crypto', 'mongodb' ], function(crypto, mongodb) {
 
         // Client not found
         if (r.length == 0) {
-          sendError(res, 401, 'invalid_client', 'Client authentication failed, unknown client.');
-          return;
+          return sendError(res, 401, 'invalid_client', 'Client authentication failed, unknown client.');
         } else {
 
           // Redirect URI does not match
           if (r.redirect_uri != redirect_uri) {
-            sendError(res, 400, 'invalid_grant', 'Redirection URI does not match.');
-            return;
+            return sendError(res, 400, 'invalid_grant', 'Redirection URI does not match.');
           }
 
           // Client secret does not match
           if (r.secret != code) {
-            sendError(res, 400, 'invalid_grant', 'The provided authorization code is invalid, expired or revoked.');
-            return;
+            return sendError(res, 400, 'invalid_grant', 'The provided authorization code is invalid, expired or revoked.');
           }
 
           // Generate token
@@ -163,17 +159,23 @@ define([ 'crypto', 'mongodb' ], function(crypto, mongodb) {
     var scope = req.query.scope || null;
     var state = req.query.state || null;
 
-		// No user logged in
-    if (!req.session.user) {
-    	
-    }
-
     res.set('Content-Type', 'application/json');
     res.charset = 'utf-8';
 
     // Missing param => Invalid request
     if ((!response_type) || (!client_id)) {
-      sendError(res, 400, 'invalid_request', 'The request is missing a required parameter.');
+      return sendError(res, 400, 'invalid_request', 'The request is missing a required parameter.');
+    }
+    
+    // Check for valid client_id
+    if ((client_id.length != 12) && (client_id.length != 24)) {
+      return sendError(res, 400, 'invalid_request', 'client_id must be a single String of 12 bytes or a string of 24 hex characters.');
+    }
+
+		// No user logged in
+    if ((!req.session.user) && (response_type=='token')) {
+    	var search = req._parsedUrl.search;
+    	return res.redirect('/login' + search);
     }
 
     req.app.get('db').collection('Client', function(err, c) {
@@ -183,20 +185,21 @@ define([ 'crypto', 'mongodb' ], function(crypto, mongodb) {
 
         // Client not found
         if (r.length == 0) {
-          sendError(res, 401, 'access_denied', 'The resource owner or authorization server denied the request.');
-          return;
+          if (response_type != 'token') {
+	         	return sendError(res, 400, 'unsupported_response_type', 'The response type is not supported by the authorization server.')
+	         } else {
+	          return sendError(res, 401, 'access_denied', 'The resource owner or authorization server denied the request.');
+	         }
         } else {
 
           // Redirect URI does not match
           if ((redirect_uri) && (r.redirect_uri != redirect_uri)) {
-            sendError(res, 401, 'access_denied', 'Redirection URI does not match.');
-            return;
+            return sendError(res, 401, 'access_denied', 'Redirection URI does not match.');
           }
 
           // No redirect URI
           if ((!redirect_uri) && (!r.redirect_uri)) {
-            sendError(res, 400, 'invalid_request', 'No redirection URI provided.');
-            return;
+            return sendError(res, 400, 'invalid_request', 'No redirection URI provided.');
           }
 
           // Only response type token is supported
@@ -205,8 +208,7 @@ define([ 'crypto', 'mongodb' ], function(crypto, mongodb) {
             if (state) {
               redirect_uri += '&state=' + state;
             }
-            res.redirect(302, redirect_uri);
-            return;
+            return res.redirect(302, redirect_uri);
           }
 
           // Generate token
