@@ -12,6 +12,7 @@
     "amdefine": ">= 0.0.4",
     "mongodb": ">= 1.2.11",
     "node-conf": ">= 0.0.4",
-    "connect": ">= 2.7.2"
+    "connect": ">= 2.7.2",
+    "moment": ">= 1.7.2"
   }
 }

@@ -22,7 +22,7 @@ requirejs.config({
  */
 requirejs([ 'http', 'connect', 'path', 'express', 'node-conf', 'mongodb', './routes/oauth', './routes/user' ], function(http, connect, path, express, conf, mongodb, oauth, user) {
 
-	var node_env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
+  var node_env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
   var config = conf.load(node_env);
 
   // Check for configuration
@@ -61,7 +61,8 @@ requirejs([ 'http', 'connect', 'path', 'express', 'node-conf', 'mongodb', './rou
       app.use(express.methodOverride());
       app.use(cookieParser);
       app.use(express.session({
-        store: sessionStore
+        store: sessionStore,
+        key: 'oauth2js'
       }));
       app.use(app.router);
     });
@@ -73,16 +74,19 @@ requirejs([ 'http', 'connect', 'path', 'express', 'node-conf', 'mongodb', './rou
     // Define OAuth routes
     app.post('/token', oauth.token);
     app.get('/authorize', oauth.authorize);
-    
+    app.get('/verify', oauth.verify);
+
     // Define User routes
     app.get('/', user.index);
     app.get('/login', user.login);
     app.post('/login', user.performlogin);
     app.get('/logout', user.logout);
 
-		// 404 Not found
-    app.all('*', function(req, res) { res.send(404, "<html><body><pre>I'm sorry Dave, i'm afraid i can't do that.</pre></body></html>") });
-    
+    // 404 Not found
+    app.all('*', function(req, res) {
+      res.send(404, "<html><body><pre>I'm sorry Dave, i'm afraid i can't do that.</pre></body></html>");
+    });
+
     // Start server
     app.get('ports').forEach(function(port) {
       http.createServer(app).listen(port, function() {
