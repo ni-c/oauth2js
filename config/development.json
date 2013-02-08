@@ -1,0 +1,10 @@
+{
+  "ports": ["8000"],
+  "secret": "zrzBjPNhMBQdAuBao7gCIUnYRdjZ7aOaFFQ2CVio",
+  "oauth": {
+    "uri": "http://localhost:8001/",
+    "client_id": "5113cc7835d9ec838be26223",
+    "client_secret": "cae300a9fe5a4e6cecf4edb5eace3427aad3c4e4dff8663",
+    "redirect_uri": "http://localhost:8000/"
+  }
+}

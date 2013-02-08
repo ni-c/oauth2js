@@ -1,0 +1,17 @@
+{
+  "name": "oauth2js-client",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "express": "3.0.0rc4",
+    "jade": "*",
+    "requirejs": ">= 2.0.6",
+    "amdefine": ">= 0.0.2",
+    "connect": ">= 2.7.2",
+    "node-conf": ">= 0.0.4",
+    "oauth": ">= 0.9.8"
+  }
+}
